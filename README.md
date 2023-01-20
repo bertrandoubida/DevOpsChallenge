@@ -92,7 +92,7 @@ sudo apt-get install -y docker-ce docker-ce-cli containerd.io
 
 #!/bin/bash
 
-# Check if the server is up and serving the expected content
+#Check if the server is up and serving the expected content
 status_code=$(curl -s -o /dev/null -w "%{http_code}" http://your-server-ip-or-domain)
 
 if [ "$status_code" -eq "200" ]; then
