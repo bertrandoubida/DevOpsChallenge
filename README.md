@@ -36,7 +36,7 @@ You are required to set up a new server in AWS. You must:
 
 -Once on the "EC2" page, look around the page for the key word "Instances" (usually located front and center on the page or in the left drop down menu), and click on it. To set up a new server, click on "Launch instances". 
 
--Once on the "Launch an instance" page, check the region name in the upper right corner to make sure you are in the desired location, choose a "Name" for your new server, select your "machine image" (I chose Ubuntu), the "instance type" (I chose t2.micro), use or create a "security group" that allows you to "SSH" into the server and also allows public access( "HTTPS prefered").
+-Once on the "Launch an instance" page, check the region name in the upper right corner to make sure you are in the desired location, choose a "Name" for your new server, select your "machine image" (I chose Ubuntu), the "instance type" (I chose t2.micro), use or create a "security group" that allows you to "SSH" into the server from "My IP" and also allows public access eventually ( "HTTPS prefered", enable "Auto-assign public IP").
 
 -Once done with the configurations, click on "Launch instance" to set up your new server.
 
@@ -48,7 +48,94 @@ You are required to set up a new server in AWS. You must:
 
 *Deploy the docker image to the server:
 
+-Open a web browser and find the "DevOpsChallenge" repository on my github, copy the web address, head back to your EC2 server, make sure git is installed by typing "git --version" then hit enter
+
+-Once confirmed that "git" is installed, type in "git clone" and paste the web address you copied from github earlier.
+
+-When cloning is done, type in "ls" and hit enter to make sure the right repositorty was cloned
+
+-Install Docker on your server by running the following code one after the other, and hitting enter after each line
+sudo apt-get update
+sudo apt-get install -y apt-transport-https ca-certificates curl gnupg-agent software-properties-common
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+sudo apt-get update
+sudo apt-get install -y docker-ce docker-ce-cli containerd.io
+
+- Type in "sudo docker info" and hit enter to verify that Docker has been installed on your server
+
+-Type in "cd DevOps" and press enter to open your repository.
+
+-To build your docker image, simply type in "sudo docker build -t (any name you choose here) ."
+
+-After letting the build finish, check that the build was made by typing in "sudo docker images" and hit enter
+
+-Verify that your docker application engine is running (and get more details) by typing in "sudo systemctl status docker". Hit ":q" to exit viewing
+
+-To deploy the docker image to the server type in "docker run -d -p 80:80 (your image name)".
+
+-If an error message appears, type in "sudo usermod -aG docker $USER", and restart your EC2 server and try ""docker run -d -p 80:80 (your image name)" again.
+
+-To check that your image is running on the server, type in "docker ps".
 
 
 
-Run the checker script.
+
+*Run the checker script.
+"""
+-To check on the server, head back to your AWS console search bar, and type in "IAM"
+
+'''-When on the "IAM" home page, click on "roles", click on "Create role" on the top right corner of the screen, select "lambda" at the bottom of the page and click next, select "AWSLambdaBasicExecutionRole" at the top of the options and click create policy, select "lambda" for service,
+
+-To check on the server, head back to your AWS console search bar, and type in "Lambda".
+
+-Click on "Create a function", located on the right side of the page
+
+-At the top of the page, select "Author from scratch", input your function "name", chose "Python" for Runtime, expand the "Change default execution role" and select "Create a new role with basic Lambda permissions", click "Create function".
+
+-Copy and paste this code into the section titled "Code Source" at the bottom of the page to replace the default code".
+
+import boto3
+import requests
+
+def lambda_handler(event, context):
+    try:
+        response = requests.get("http://your_ec2_public_ip:port/your_endpoint")
+        if response.status_code == 200:
+            print("Server is up and serving expected content")
+        else:
+            print("Server is down or not serving expected content")
+    except requests.exceptions.RequestException as e:
+        print(str(e))
+
+-Enter you EC2 "Public-IP", access port number, and "your endpoint". Click on "deploy" (located next to "Test"),
+
+-Open another browser and us the search bar to go to "Eventbridge", when on the "Eventbridge" page, select "eventbridge Rule" and click "create rule" 
+
+-Enter a rule "name", select "Recurring schedule" to check it every 5 minutes, click next.
+
+-Select
+
+""""
+
+
+
+
+
+
+look to the left side of the page, scroll down to "Events", and click on "Rules".
+
+-Click on "Create rule"
+
+
+
+
+use paste this code into 
+low it to see the blueprints, select "Return HTTP response 200 status code" in scripted in NodeJS., name your function, select "Use an existing role" and choose the "service-role/Check-ec2-role-tey...."
+
+
+
+
+
+
+Create a template from your instance.
