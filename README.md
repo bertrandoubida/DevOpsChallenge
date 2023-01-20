@@ -28,7 +28,11 @@ You are required to set up a new server in AWS. You must:
 
 -Click "Sign in to console" on the upper right corner, if not a root user, enter your "Account ID" (12 digits), your "username", and your "password".
 
--After clicking sign in and landing on the "console home" page, look for the console search bar, type in "EC2" and hit enter.
+-After clicking sign in and landing on the "console home" page, look for the console search bar, type in "VPC", and click to head to the "VPC home page"
+
+-Click on "Create VPC", when new creation page appears, select "VPC and more", and "Create VPC".
+
+-Look for the console search bar, type in "EC2" and hit enter.
 
 -Once on the "EC2" page, look around the page for the key word "Instances" (usually located front and center on the page or in the left drop down menu), and click on it. To set up a new server, click on "Launch instances". 
 
