@@ -36,7 +36,7 @@ You are required to set up a new server in AWS. You must:
 
 -Once on the "EC2" page, look around the page for the key word "Instances" (usually located front and center on the page or in the left drop down menu), and click on it. To set up a new server, click on "Launch instances". 
 
--Once on the "Launch an instance" page, check the region name in the upper right corner to make sure you are in the desired location, choose a "Name" for your new server, select your "machine image" (I chose Ubuntu), the "instance type" (I chose t2.micro), use or create a "security group" that allows you to "SSH" into the server from "My IP" and also allows public access eventually ( "HTTPS prefered", enable "Auto-assign public IP").
+-Once on the "Launch an instance" page, check the region name in the upper right corner to make sure you are in the desired location, choose a "Name" for your new server, select your "machine image" (I chose Ubuntu), the "instance type" (I chose t2.micro), select your newly created "VPC" and "public subnet", use or create a "security group" that allows you to "SSH" into the server from "My IP" and also allows public access (HTTP & HTTPS, enable "Auto-assign public IP").
 
 -Once done with the configurations, click on "Launch instance" to set up your new server.
 
@@ -54,7 +54,7 @@ You are required to set up a new server in AWS. You must:
 
 -When cloning is done, type in "ls" and hit enter to make sure the right repositorty was cloned
 
--Install Docker on your server by running the following code one after the other, and hitting enter after each line
+-Install Docker on your server by running the following code one after the other, and hitting enter 
 sudo apt-get update
 sudo apt-get install -y apt-transport-https ca-certificates curl gnupg-agent software-properties-common
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
@@ -76,16 +76,11 @@ sudo apt-get install -y docker-ce docker-ce-cli containerd.io
 
 -If an error message appears, type in "sudo usermod -aG docker $USER", and restart your EC2 server and try ""docker run -d -p 80:80 (your image name)" again.
 
--To check that your image is running on the server, type in "docker ps".
-
+-To check that your image is running on the server, type in "sudo docker ps".
 
 
 
 *Run the checker script.
-"""
--To check on the server, head back to your AWS console search bar, and type in "IAM"
-
-'''-When on the "IAM" home page, click on "roles", click on "Create role" on the top right corner of the screen, select "lambda" at the bottom of the page and click next, select "AWSLambdaBasicExecutionRole" at the top of the options and click create policy, select "lambda" for service,
 
 -To check on the server, head back to your AWS console search bar, and type in "Lambda".
 
@@ -95,47 +90,29 @@ sudo apt-get install -y docker-ce docker-ce-cli containerd.io
 
 -Copy and paste this code into the section titled "Code Source" at the bottom of the page to replace the default code".
 
-import boto3
-import requests
+#!/bin/bash
 
-def lambda_handler(event, context):
-    try:
-        response = requests.get("http://your_ec2_public_ip:port/your_endpoint")
-        if response.status_code == 200:
-            print("Server is up and serving expected content")
-        else:
-            print("Server is down or not serving expected content")
-    except requests.exceptions.RequestException as e:
-        print(str(e))
+# Check if the server is up and serving the expected content
+status_code=$(curl -s -o /dev/null -w "%{http_code}" http://your-server-ip-or-domain)
 
--Enter you EC2 "Public-IP", access port number, and "your endpoint". Click on "deploy" (located next to "Test"),
+if [ "$status_code" -eq "200" ]; then
+    echo "Server is up and serving the expected content"
+else
+    echo "Server is down or not serving the expected content"
+fi
 
--Open another browser and us the search bar to go to "Eventbridge", when on the "Eventbridge" page, select "eventbridge Rule" and click "create rule" 
-
--Enter a rule "name", select "Recurring schedule" to check it every 5 minutes, click next.
-
--Select
-
-""""
+-Enter you EC2 "Public-IP", click on "deploy" (located next to "Test")
 
 
 
 
+#Summary of events
+Create a VPC
+Creat an Ubuntu Instance
+Build and deploy Docker
+Create a Lambda Function
 
-
-look to the left side of the page, scroll down to "Events", and click on "Rules".
-
--Click on "Create rule"
-
-
-
-
-use paste this code into 
-low it to see the blueprints, select "Return HTTP response 200 status code" in scripted in NodeJS., name your function, select "Use an existing role" and choose the "service-role/Check-ec2-role-tey...."
-
-
-
-
-
-
-Create a template from your instance.
+*To further automate:
+Create a "Cloudformation" template from your instance
+"Elastic Beanstalk" to create server, deploy Docker image to it, and provision health checks
+"CodePipeline" to automate the entire process
