@@ -1,27 +1,28 @@
 # Copia Devops Technical Challenge
 
-# Goal
+## Goal
 
 Create a script that will build a docker image, deploy to server on aws, and create another script that will periodically check if the server is running.
 
-# Prerequisites
+###### Prerequisites
 
 You will need an AWS account. Create one if you don't have one already. Use free-tier resources for this test.
 
-# The Challenge
+###### The Challenge
 
 You are required to set up a new server in AWS. You must:
 
-* Build the docker image with the provided Dockerfile
-* Deploy the image to a server and have it be publicly accessible
-* The server application should return 200 OK when a http request is sent
-
-#Steps to Complete Work
+** Build the docker image with the provided Dockerfile **
+** Deploy the image to a server and have it be publicly accessible **
+** The server application should return 200 OK when a http request is sent **
 
 
 
+## Steps to Complete Work
 
-**Create the server:
+
+
+###### Create the server:
 
 -Open a web browser, navigate to "aws.amazon.com"
 
@@ -44,14 +45,14 @@ You are required to set up a new server in AWS. You must:
 -Choose your prefered method of connecting, and officially connect into the server.
 
 
-**Deploy the docker image to the server:
+###### Deploy the docker image to the server:
 
 -Open a web browser and find the "DevOpsChallenge" repository on my github, copy the web address, head back to your EC2 server, make sure git is installed by typing "git --version" then hit enter
 
 -Once confirmed that "git" is installed, type in "git clone" and paste the web address you copied from github earlier.
 
 -When cloning is done, type in "ls" and hit enter to make sure the right repositorty was cloned
-
+'''
 -Install Docker on your server by running the following code one after the other, and hitting enter 
 sudo apt-get update
 sudo apt-get install -y apt-transport-https ca-certificates curl gnupg-agent software-properties-common
@@ -59,7 +60,7 @@ curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
 sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
 sudo apt-get update
 sudo apt-get install -y docker-ce docker-ce-cli containerd.io
-
+'''
 - Type in "sudo docker info" and hit enter to verify that Docker has been installed on your server.
 
 -Type in "cd DevOps" and press enter to open your repository.
@@ -70,9 +71,9 @@ sudo apt-get install -y docker-ce docker-ce-cli containerd.io
 
 -Verify that your docker application engine is running (and get more details) by typing in "sudo systemctl status docker". Hit ":q" to exit viewing
 
--To deploy the docker image to the server type in "docker run -p 80:80 (your image name)".
+-To deploy the docker image to the server type in "docker run -d -p 80:80 -name (your container name) (your image name)".
 
--If an error message appears, type in "sudo usermod -aG docker $USER", and restart your EC2 server and try ""docker run -p 80:80 (your image name)" again.
+-If an error message appears, type in "sudo usermod -aG docker $USER", and restart your EC2 server and try ""docker run -d -p 80:80 -name (your container name) (your image name)" again.
 
 -To check that your image is running on the server, type in "sudo docker ps".
 
@@ -81,7 +82,7 @@ sudo apt-get install -y docker-ce docker-ce-cli containerd.io
 -Check that the opened port works and that you have connection to your server by typing in "wget localhost".
 
 
-**Run the checker script.
+###### Run the checker script.
 
 -To check on the server, head back to your AWS console search bar, and type in "Lambda".
 
@@ -89,10 +90,11 @@ sudo apt-get install -y docker-ce docker-ce-cli containerd.io
 
 -At the top of the page, select "Author from scratch", input your function "name", chose "Python" for Runtime, expand the "Change default execution role" and select "Create a new role with basic Lambda permissions", click "Create function".
 
--Click on "Layers", located right under the image of your new function, "Add a layer", select the "Python" package as the layer and "add".
+-Click on "Layers", located right under the image of your new function, "Add a layer", select the "Python" package as the layer and "add" to make sure your code has all the modules and is able to be understood by the system.
 
--Copy and paste this code into the section titled "Code Source" at the bottom of the page to replace the default code".
+-Copy and paste this code into the section titled "Code Source" at the bottom of the page to replace the default code", this should allow you to check if the page is up running, and delivering content.
 
+'''
 import boto3
 import requests
 
@@ -114,7 +116,7 @@ def lambda_handler(event, context):
             return 'Error: {}'.format(e)
     else:
         return 'Instance is not running'
-
+'''
 
 -After entering the code in and deploying, make sure the lambda functions has the proper configurations by navigating to "Configuration"
 
@@ -133,15 +135,18 @@ def lambda_handler(event, context):
 -Go back to the lamda homepage, and test your lambda function, it should prove successful.
 
 
-#Summary of events
-Create a VPC
-Creat an Ubuntu Instance
-Build and deploy Docker
-Create a Lambda Function
+###### Summary of events
+** Create a VPC **
+** Create an Ubuntu Instance **
+** Build and deploy Docker **
+** Create a Lambda Function **
 
 
-**To further automate:
+###### To further automate:
 Create a "Cloudformation" template from your instance
 "Elastic Beanstalk" to create server, deploy Docker image to it, and provision health checks
 Utilize ECR and ECS to register and manage containers 
 "CodePipeline" to automate the entire process
+
+###### Miscellaneous
+-Second lambda function add just to check if website is working, returned 200ok but site is still a blank white page
