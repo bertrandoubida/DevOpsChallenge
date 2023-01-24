@@ -16,13 +16,12 @@ You are required to set up a new server in AWS. You must:
 * Deploy the image to a server and have it be publicly accessible
 * The server application should return 200 OK when a http request is sent
 
-
-
 #Steps to Complete Work
 
 
 
-*Create the server:
+
+**Create the server:
 
 -Open a web browser, navigate to "aws.amazon.com"
 
@@ -45,8 +44,7 @@ You are required to set up a new server in AWS. You must:
 -Choose your prefered method of connecting, and officially connect into the server.
 
 
-
-*Deploy the docker image to the server:
+**Deploy the docker image to the server:
 
 -Open a web browser and find the "DevOpsChallenge" repository on my github, copy the web address, head back to your EC2 server, make sure git is installed by typing "git --version" then hit enter
 
@@ -62,48 +60,77 @@ sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubun
 sudo apt-get update
 sudo apt-get install -y docker-ce docker-ce-cli containerd.io
 
-- Type in "sudo docker info" and hit enter to verify that Docker has been installed on your server
+- Type in "sudo docker info" and hit enter to verify that Docker has been installed on your server.
 
 -Type in "cd DevOps" and press enter to open your repository.
 
--To build your docker image, simply type in "sudo docker build -t (any name you choose here) ."
+-To build your docker image, simply type in "sudo docker build -t (any name you choose here) .".
 
 -After letting the build finish, check that the build was made by typing in "sudo docker images" and hit enter
 
 -Verify that your docker application engine is running (and get more details) by typing in "sudo systemctl status docker". Hit ":q" to exit viewing
 
--To deploy the docker image to the server type in "docker run -d -p 80:80 (your image name)".
+-To deploy the docker image to the server type in "docker run -p 80:80 (your image name)".
 
--If an error message appears, type in "sudo usermod -aG docker $USER", and restart your EC2 server and try ""docker run -d -p 80:80 (your image name)" again.
+-If an error message appears, type in "sudo usermod -aG docker $USER", and restart your EC2 server and try ""docker run -p 80:80 (your image name)" again.
 
 -To check that your image is running on the server, type in "sudo docker ps".
 
+-Check files in the container by typing in "docker exec -IT (Container name) Bash, after accessing container, enter "ls" to check.
+
+-Check that the opened port works and that you have connection to your server by typing in "wget localhost".
 
 
-*Run the checker script.
+**Run the checker script.
 
 -To check on the server, head back to your AWS console search bar, and type in "Lambda".
 
--Click on "Create a function", located on the right side of the page
+-Click on "Create a function", located on the right side of the page.
 
 -At the top of the page, select "Author from scratch", input your function "name", chose "Python" for Runtime, expand the "Change default execution role" and select "Create a new role with basic Lambda permissions", click "Create function".
 
+-Click on "Layers", located right under the image of your new function, "Add a layer", select the "Python" package as the layer and "add".
+
 -Copy and paste this code into the section titled "Code Source" at the bottom of the page to replace the default code".
 
-#!/bin/bash
+import boto3
+import requests
 
-#Check if the server is up and serving the expected content
-status_code=$(curl -s -o /dev/null -w "%{http_code}" http://your-server-ip-or-domain)
+def lambda_handler(event, context):
+    instance_id = event['instance_id']
+    ec2 = boto3.client('ec2')
+    response = ec2.describe_instances(InstanceIds=[put instance_id here])
+    state = response['Reservations'][0]['Instances'][0]['State']['Name']
 
-if [ "$status_code" -eq "200" ]; then
-    echo "Server is up and serving the expected content"
-else
-    echo "Server is down or not serving the expected content"
-fi
+    if state == 'running':
+        try:
+            public_ip = response['Reservations'][0]['Instances'][0]['put PublicIpAddress here']
+            response = requests.get(public_ip)
+            if response.status_code == 200:
+                return 'Instance is running and serving expected content'
+            else:
+                return 'Instance is running but not serving expected content'
+        except requests.exceptions.RequestException as e:
+            return 'Error: {}'.format(e)
+    else:
+        return 'Instance is not running'
 
--Enter you EC2 "Public-IP", click on "deploy" (located next to "Test")
 
+-After entering the code in and deploying, make sure the lambda functions has the proper configurations by navigating to "Configuration"
 
+-Click on "General configuration" on the left side of the page, edit the "Timeout" time to at least "15 sec"
+
+-Click on "Triggers", "Add trigger", select "EventBridge" for a source, "create a new rule" that will trigger your lambda function every 5 minutes, click "add".
+
+-Click on "VPC", associate all the neccesary resources (VPC, Subnet, Security Group), and save.
+
+-Type in "IAM" in the main search bar to navigate to the IAM homepage.
+
+-Click on "Roles" in the left dropdown to see your newly created lambda role, click on the lambda role, scroll down to add permissions to give it access to your EC2, cloudwatch and Internet.
+
+-Adding "AmazonVPCCrossAccountNetworkInterfaceOperations", "CloudWatchLogsReadOnlyAccess", "CloudWatchEventsReadOnlyAccess", and "AmazonEC2ReadOnlyAccess" should be enough.
+
+-Go back to the lamda homepage, and test your lambda function, it should prove successful.
 
 
 #Summary of events
@@ -112,7 +139,9 @@ Creat an Ubuntu Instance
 Build and deploy Docker
 Create a Lambda Function
 
-*To further automate:
+
+**To further automate:
 Create a "Cloudformation" template from your instance
 "Elastic Beanstalk" to create server, deploy Docker image to it, and provision health checks
+Utilize ECR and ECS to register and manage containers 
 "CodePipeline" to automate the entire process
