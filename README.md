@@ -99,30 +99,6 @@ import boto3
 import requests
 
 def lambda_handler(event, context):
-    instance_id = event['instance_id']
-    ec2 = boto3.client('ec2')
-    response = ec2.describe_instances(InstanceIds=[put instance_id here])
-    state = response['Reservations'][0]['Instances'][0]['State']['Name']
-
-    if state == 'running':
-        try:
-            public_ip = response['Reservations'][0]['Instances'][0]['put PublicIpAddress here']
-            response = requests.get(public_ip)
-            if response.status_code == 200:
-                return 'Instance is running and serving expected content'
-            else:
-                return 'Instance is running but not serving expected content'
-        except requests.exceptions.RequestException as e:
-            return 'Error: {}'.format(e)
-    else:
-        return 'Instance is not running'
-        
-        
-
-import boto3
-import requests
-
-def lambda_handler(event, context):
     ec2 = boto3.client('ec2')
     response = ec2.describe_instances(InstanceIds=[put instance_id here])
     status = response['Reservations'][0]['Instances'][0]['State']['Name']
@@ -177,20 +153,23 @@ def lambda_handler(event, context):
 
 -Navigate to "Amazon ECR" in the main search bar to create an easily accessible image for team use
 
-- Click on "Create a repositiory", make it "private" for more control, "name" and "create".
+- Click on "Create a repositiory", make it "private" for more control, "name" and "create"
+
+-Navigate to the "IAM" home page, create a new "roles", select "AWS service", select "EC2" in "Common use cases", find "AWSAppRunnerServicePolicyForECRAccess" for a policy permission, and create role
 
 -Navigate to your "EC2" and connect, check that your image is there with "Docker images"
 
--
-Tag your repository using this code: ''' docker tag e9ae3c220b23 aws_account_id.dkr.ecr.region.amazonaws.com/my-repository:tag '''
+-Tag your repository using this code: 
+''' docker tag e9ae3c220b23 aws_account_id.dkr.ecr.region.amazonaws.com/my-repository:tag '''
 
--Push image to ECR using this code: ''' docker push aws_account_id.dkr.ecr.region.amazonaws.com/my-repository:tag '''
+-Push image to ECR using this code: 
+''' docker push aws_account_id.dkr.ecr.region.amazonaws.com/my-repository:tag '''
 
 -Navigate to "Codebuild" using the search bar, let's utilize this to test and produce code ready to deploy.
 
 - Click on "Create build project", "name" your project, and list "Github" as your source provider and connect to it.
 
-- Select "Managed image" .....tbc
+- Select "Managed image" ....
 
 ###### Create a "Cloudformation" template from your instance
 
