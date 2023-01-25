@@ -172,12 +172,32 @@ def lambda_handler(event, context):
 
 -Now you can "Launch instance from template" when need be to save some time.
 
-######Create a "Cloudformation" template from your instance
+
+###### "CodePipeline" to automate the entire process
+
+-Navigate to "Amazon ECR" in the main search bar to create an easily accessible image for team use
+
+- Click on "Create a repositiory", make it "private" for more control, "name" and "create".
+
+-Navigate to your "EC2" and connect, check that your image is there with "Docker images"
+
+-
+Tag your repository using this code: ''' docker tag e9ae3c220b23 aws_account_id.dkr.ecr.region.amazonaws.com/my-repository:tag '''
+
+-Push image to ECR using this code: ''' docker push aws_account_id.dkr.ecr.region.amazonaws.com/my-repository:tag '''
+
+-Navigate to "Codebuild" using the search bar, let's utilize this to test and produce code ready to deploy.
+
+- Click on "Create build project", "name" your project, and list "Github" as your source provider and connect to it.
+
+- Select "Managed image" .....tbc
+
+###### Create a "Cloudformation" template from your instance
 
 
 "Elastic Beanstalk" to create server, deploy Docker image to it, and provision health checks
 Utilize ECR and ECS to register and manage containers 
-"CodePipeline" to automate the entire process
+
 
 ###### Miscellaneous
 -Second lambda function add just to check if website is working, returned 200ok but site is still a blank white page
