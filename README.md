@@ -116,6 +116,27 @@ def lambda_handler(event, context):
             return 'Error: {}'.format(e)
     else:
         return 'Instance is not running'
+        
+        
+
+import boto3
+import requests
+
+def lambda_handler(event, context):
+    ec2 = boto3.client('ec2')
+    response = ec2.describe_instances(InstanceIds=[put instance_id here])
+    status = response['Reservations'][0]['Instances'][0]['State']['Name']
+    if status == "running":
+        try:
+            r = requests.get("http://put PublicIpAddress here/")
+            if r.status_code == 200:
+                print("EC2 is running and serving content.")
+            else:
+                print("EC2 is running but not serving content.")
+        except requests.exceptions.RequestException as e:
+            print("EC2 is running but not serving content.")
+    else:
+        print("EC2 is not running.")
 '''
 
 -After entering the code in and deploying, make sure the lambda functions has the proper configurations by navigating to "Configuration"
@@ -143,7 +164,17 @@ def lambda_handler(event, context):
 
 
 ###### To further automate:
-Create a "Cloudformation" template from your instance
+
+####Create a template from Instance
+- Navigate your way to  the instance homepage, select your instance, and click on "Actions", from the dropdown, click on "Image and templates", and click "Create template from instance".
+
+-Create the template of an EC2 that will serve as a quick launch for the team, configurations of your created EC2 should be inputted already, so click "Create launch template".
+
+-Now you can "Launch instance from template" when need be to save some time.
+
+######Create a "Cloudformation" template from your instance
+
+
 "Elastic Beanstalk" to create server, deploy Docker image to it, and provision health checks
 Utilize ECR and ECS to register and manage containers 
 "CodePipeline" to automate the entire process
