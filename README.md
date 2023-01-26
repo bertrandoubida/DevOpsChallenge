@@ -153,17 +153,39 @@ def lambda_handler(event, context):
 
 -Navigate to "Amazon ECR" in the main search bar to create an easily accessible image for team use
 
-- Click on "Create a repositiory", make it "private" for more control, "name" and "create"
+- Click on "Create a repositiory", make it "public" for more control, "name" and "create"
 
--Navigate to the "IAM" home page, create a new "roles", select "AWS service", select "EC2" in "Common use cases", find "AWSAppRunnerServicePolicyForECRAccess" for a policy permission, and create role
+-Navigate to the "IAM" home page, create a new "roles", select "AWS service", select "EC2" in "Common use cases", find "AmazonEC2ContainerRegistryPowerUser" for a policy permission, and create role
 
--Navigate to your "EC2" and connect, check that your image is there with "Docker images"
+-Navigate to your "EC2", attach the new IAM role and connect, check that your image is there with "Docker images"
 
 -Tag your repository using this code: 
 ''' docker tag e9ae3c220b23 aws_account_id.dkr.ecr.region.amazonaws.com/my-repository:tag '''
 
 -Push image to ECR using this code: 
 ''' docker push aws_account_id.dkr.ecr.region.amazonaws.com/my-repository:tag '''
+
+- If you receive a "Connection was closed before we received a valid response from endpoint URL: "https://api.ecr-public.us-east-1.amazonaws.com/".
+Error: Cannot perform an interactive login from a non TTY device" 
+
+- Install "Json" to parse and extract the token in case it is written in JSON by typing "sudo apt-get install jq"
+
+-Make sure AWS CLI 2.0 is installed by checking with "aws --version", if not installed, copy and paste the following codes:
+
+'''
+sudo curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+sudo apt-get install unzip
+sudo unzip awscliv2.zip
+sudo ./aws/install
+aws --version
+'''
+-You may need to restart your server for it to fully switch over if you already had awscli version 1
+
+- Copy and paste this to the terminal "
+
+-
+
+-
 
 -Navigate to "Codebuild" using the search bar, let's utilize this to test and produce code ready to deploy.
 
